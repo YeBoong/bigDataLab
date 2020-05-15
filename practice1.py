@@ -41,7 +41,7 @@ print(cnt_searchResult)
 pageNum = math.trunc(cnt_searchResult/5)
 print(pageNum)
 
-for i in range(1, pageNum):
+for i in range(1, 3):
     if i > 10 and (i%10)-1 == 0:
         driver.find_elements_by_css_selector('#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > div.part.page > span.next > a').click()
         time.sleep(1.5)
@@ -60,7 +60,7 @@ for i in range(1, pageNum):
     mileage = soup.select(
         '#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > table > tbody > tr:nth-child(2) > td:nth-child(2) > a > span.detail > span.km'
     )
-    price - soup.select(
+    price = soup.select(
         '#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > table > tbody > tr:nth-child(1) > td:nth-child(2) > a > span.val > span > strong'
     )
 
@@ -74,4 +74,8 @@ for i in range(1, pageNum):
             'price' : item[5].text
             }
         )
-        
+    print(i)
+    
+    data = pd.DataFrame(car_info)
+    print(data)
+    data.to_csv('encar_car_info.csv')
