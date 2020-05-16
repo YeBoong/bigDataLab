@@ -1,6 +1,7 @@
 import time
 import pandas as pd
 import math
+from tabulate import tabulate
 
 from selenium import webdriver      # 웹 화면 제어용
 from bs4 import BeautifulSoup       # 웹 코드 추출
@@ -41,28 +42,35 @@ print(cnt_searchResult)
 pageNum = math.trunc(cnt_searchResult/5)
 print(pageNum)
 
-for i in range(1, 3):
+for i in range(1, 4):
     if i > 10 and (i%10)-1 == 0:
         driver.find_elements_by_css_selector('#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > div.part.page > span.next > a').click()
         time.sleep(1.5)
+    elif i == 1:
+        #driver.find_element_by_link_text(str(i)).click()
+        time.sleep(1.5)
+    elif i != 1:
+        driver.find_element_by_link_text(str(i)).click()
+        time.sleep(1.5)
+
     company = soup.select(
-        '#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > table > tbody > tr:nth-child(1) > td:nth-child(2) > a > span.inf > span.cls > strong'
+        '#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > table > tbody > tr > td > a > span.inf > span.cls > strong'
         )
     model = soup.select(
-        '#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > table > tbody > tr:nth-child(1) > td:nth-child(2) > a > span.inf > span.cls > em'
+        '#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > table > tbody > tr > td > a > span.inf > span.cls > em'
     )
     rating = soup.select(
-        '#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > table > tbody > tr:nth-child(1) > td:nth-child(2) > a > span.inf > span.dtl > strong'
+        '#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > table > tbody > tr > td > a > span.inf > span.dtl > strong'
     )
     year = soup.select(
-        '#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > table > tbody > tr:nth-child(1) > td:nth-child(2) > a > span.detail > span.yer'
+        '#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > table > tbody > tr > td > a > span.detail > span.yer'
     )
     mileage = soup.select(
-        '#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > table > tbody > tr:nth-child(2) > td:nth-child(2) > a > span.detail > span.km'
+        '#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > table > tbody > tr > td > a > span.detail > span.km'
     )
     price = soup.select(
-        '#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > table > tbody > tr:nth-child(1) > td:nth-child(2) > a > span.val > span > strong'
-    )
+        '#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > table > tbody > tr > td > a > span.val > span > strong'
+        )
 
     for item in zip(company, model, rating, year, mileage, price):
         car_info.append(
@@ -71,11 +79,18 @@ for i in range(1, 3):
             'rating' : item[2].text,
             'year' : item[3].text,
             'mileage' : item[4].text,
-            'price' : item[5].text
+            'price' : item[5].text + "(만원)"
             }
         )
+
     print(i)
-    
-    data = pd.DataFrame(car_info)
-    print(data)
-    data.to_csv('encar_car_info.csv')
+
+data = pd.DataFrame(car_info)
+print(tabulate(data, headers='keys', tablefmt='psql', showindex=False))
+
+try:
+    data.to_csv('encar_car_info.csv', index = False,  encoding = 'utf-8-sig')   #   utf-8-sig OR cp949
+    print("csv 생성 완료.")
+except Exception as e:
+    print(e)
+
