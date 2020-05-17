@@ -12,10 +12,10 @@ driver = webdriver.Chrome('webCrawling\chromedriver_win32\chromedriver.exe')
 driver.get('http://www.encar.com/pr/pr_index.do?WT.hit=index_gnb')
 time.sleep(0.5)
 
-#팝업창 닫기
+#팝업창 닫기1
 driver.find_element_by_css_selector('#depth_main > div.layer_mdl.layer_guide.ui_guide.on > div.layer_container.ui_start > div > a.btn_mdl.btn_close_cookie.ui_close_cookie').click()
 
-for i in range(30, 72):
+for i in range(2, 72):
     #메뉴 선택
         #DropDown open
     driver.find_element_by_xpath('//*[@id="depth_main"]/div[2]/div/div[1]/div[1]/div[2]/ul/li[1]/div/a').click()
