@@ -28,28 +28,28 @@ soup = BeautifulSoup(html, 'html.parser')
 car_info = []   # 제조사 / 모델 / 등급/ 연식 / 주행거리 / 가격
 
 #페이지 수 구하기
-    # 1.검색 된 전체 차량 수를 출력하는 태그 부분 변수로 저장.
+   # 1.검색 된 전체 차량 수를 출력하는 태그 부분 변수로 저장.
 tag_cnt_searchResult = soup.select('#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > div.buy_title > span')
 print(tag_cnt_searchResult)
 
-    # 2. str로 변경 후, 필요한 숫자 부분만 추출하여 int로 저장.
-#tag_cnt_searchResult = str(tag_cnt_searchResult)
+   # 2. str로 변경 후, 필요한 숫자 부분만 추출하여 int로 저장.
 tag_cnt_searchResult = str(tag_cnt_searchResult)
 cnt_searchResult = int(tag_cnt_searchResult[24:-9].replace(",",""))
 print(cnt_searchResult)
 
-    # 3. 페이지 당 5개의 검색 결과를 보여주므로 cnt_searchResult/5 = '전체 페이지 수'
+   # 3. 페이지 당 5개의 검색 결과를 보여주므로 cnt_searchResult/5 = '전체 페이지 수'
 pageNum = math.trunc(cnt_searchResult/5)
 print(pageNum)
+pageNum += 2
 
-for i in range(1, 4):
+for i in range(1, pageNum):
     if i > 10 and (i%10)-1 == 0:
-        driver.find_elements_by_css_selector('#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > div.part.page > span.next > a').click()
+        driver.find_element_by_xpath('//*[@id="resultWrap"]/div[2]/div[1]/div[2]/span[3]/a').click()
         time.sleep(1.5)
     elif i == 1:
         #driver.find_element_by_link_text(str(i)).click()
         time.sleep(1.5)
-    elif i != 1:
+    else:
         driver.find_element_by_link_text(str(i)).click()
         time.sleep(1.5)
 
@@ -89,7 +89,7 @@ data = pd.DataFrame(car_info)
 print(tabulate(data, headers='keys', tablefmt='psql', showindex=False))
 
 try:
-    data.to_csv('encar_car_info.csv', index = False,  encoding = 'utf-8-sig')   #   utf-8-sig OR cp949
+    data.to_csv('crawling_Hyundai.csv', index = False,  encoding = 'utf-8-sig')   #   utf-8-sig OR cp949
     print("csv 생성 완료.")
 except Exception as e:
     print(e)
