@@ -113,8 +113,20 @@ for i in range(2, 72):
         
         except:
             print("%s 의 페이지 수에 변동이 생겼습니다. 현재 마지막 페이지입니다." % cName)
+            
+            data = pd.DataFrame(car_info)
+            print(tabulate(data, headers='keys', tablefmt='psql', showindex=False))
+            print("%s 완료" % cName)
+
+            if not os.path.exists('output_car_info.xlsx'):
+                with pd.ExcelWriter('output_car_info.xlsx', mode='w', engine='openpyxl', ) as writer:
+                    data.to_excel(writer, index=False, encoding = 'utf-8-sig', sheet_name = cName)
+            else:
+                with pd.ExcelWriter('output_car_info.xlsx', mode='a', engine='openpyxl') as writer:
+                    data.to_excel(writer, index=False, encoding = 'utf-8-sig', sheet_name = cName)
+            
             print("다음 회사로 넘어갑니다.")
-            break
+            continue
 
         data = pd.DataFrame(car_info)
         print(tabulate(data, headers='keys', tablefmt='psql', showindex=False))
@@ -126,6 +138,7 @@ for i in range(2, 72):
         else:
             with pd.ExcelWriter('output_car_info.xlsx', mode='a', engine='openpyxl') as writer:
                 data.to_excel(writer, index=False, encoding = 'utf-8-sig', sheet_name = cName)
+        print("다음 회사로 넘어갑니다.")
         # try:
         #     if not os.path.exists('output_car_info.csv'):
         #         data.to_excel('output_car_info.xlsx', index = False,  encoding = 'utf-8-sig', sheet_name = cName, mode = 'w')   #   utf-8-sig OR cp949
