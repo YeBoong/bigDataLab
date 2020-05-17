@@ -5,8 +5,9 @@ from tabulate import tabulate
 import os
 
 from selenium import webdriver      # 웹 화면 제어용
-from selenium.webdriver.common.keys import Keys
 from bs4 import BeautifulSoup       # 웹 코드 추출
+
+pageControl = 2
 
 driver = webdriver.Chrome('webCrawling\chromedriver_win32\chromedriver.exe')
 driver.get('http://www.encar.com/pr/pr_index.do?WT.hit=index_gnb')
@@ -60,48 +61,60 @@ for i in range(2, 72):
         print(pageNum)
         pageNum += 1
 
-        for j in range(1, pageNum):
-            if j > 10 and (j%10)-1 == 0:
-                driver.find_element_by_xpath('//*[@id="resultWrap"]/div[2]/div[1]/div[2]/span[3]/a').click()
-                time.sleep(0.8)
-            elif j == 1:
-                #driver.find_element_by_link_text(str(i)).click()
-                time.sleep(0.8)
-            else:
-                driver.find_element_by_link_text(str(j)).click()
-                time.sleep(0.8)
+        try:
+            for j in range(1, pageNum):
+                if j > 10 and (j%10)-1 == 0:
+                    # driver.find_element_by_xpath('//*[@id="resultWrap"]/div[2]/div[1]/div[2]/span[3]/a').click()
+                    element = driver.find_element_by_xpath('//*[@id="resultWrap"]/div[2]/div[1]/div[2]/span[3]/a')
+                    driver.execute_script("arguments[0].click();", element)
+                    time.sleep(0.8)
+                elif j == 1:
+                    #driver.find_element_by_link_text(str(i)).click()
+                    time.sleep(0.8)
+                else:
+                    element = driver.find_element_by_xpath('//*[@id="resultWrap"]/div[2]/div[1]/div[2]/span[2]/a[%d]' % pageControl)
+                    driver.execute_script("arguments[0].click();", element)
+                    pageControl += 1
+                    if pageControl > 10:
+                        pageControl = 2
+                    time.sleep(0.8)
 
-            company = soup.select(
-                '#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > table > tbody > tr > td > a > span.inf > span.cls > strong'
+                company = soup.select(
+                    '#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > table > tbody > tr > td > a > span.inf > span.cls > strong'
+                    )
+                model = soup.select(
+                    '#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > table > tbody > tr > td > a > span.inf > span.cls > em'
                 )
-            model = soup.select(
-                '#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > table > tbody > tr > td > a > span.inf > span.cls > em'
-            )
-            rating = soup.select(
-                '#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > table > tbody > tr > td > a > span.inf > span.dtl > strong'
-            )
-            year = soup.select(
-                '#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > table > tbody > tr > td > a > span.detail > span.yer'
-            )
-            mileage = soup.select(
-                '#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > table > tbody > tr > td > a > span.detail > span.km'
-            )
-            price = soup.select(
-                '#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > table > tbody > tr > td > a > span.val > span > strong'
+                rating = soup.select(
+                    '#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > table > tbody > tr > td > a > span.inf > span.dtl > strong'
                 )
+                year = soup.select(
+                    '#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > table > tbody > tr > td > a > span.detail > span.yer'
+                )
+                mileage = soup.select(
+                    '#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > table > tbody > tr > td > a > span.detail > span.km'
+                )
+                price = soup.select(
+                    '#resultWrap > div.ui_tab_container > div.result_buy.ui_tab_content.on > table > tbody > tr > td > a > span.val > span > strong'
+                    )
 
-            for item in zip(company, model, rating, year, mileage, price):
-                car_info.append(
-                    {'company' : item[0].text,
-                    'model' : item[1].text,
-                    'rating' : item[2].text,
-                    'year' : item[3].text,
-                    'mileage' : item[4].text,
-                    'price' : item[5].text + "(만원)"
-                    }
-                )
+                for item in zip(company, model, rating, year, mileage, price):
+                    car_info.append(
+                        {'company' : item[0].text,
+                        'model' : item[1].text,
+                        'rating' : item[2].text,
+                        'year' : item[3].text,
+                        'mileage' : item[4].text,
+                        'price' : item[5].text + "(만원)"
+                        }
+                    )
 
-            print("%d page 완료" % j)
+                print("%d page 완료" % j)
+        
+        except:
+            print("%s 의 페이지 수에 변동이 생겼습니다. 현재 마지막 페이지입니다." % cName)
+            print("다음 회사로 넘어갑니다.")
+            break
 
         data = pd.DataFrame(car_info)
         print(tabulate(data, headers='keys', tablefmt='psql', showindex=False))
